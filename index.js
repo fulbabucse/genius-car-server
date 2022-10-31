@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 const app = express();
@@ -27,7 +27,6 @@ const run = async () => {
     app.post("/products", async (req, res) => {
       const product = req.body;
       const result = await Products.insertOne(product);
-      console.log(result);
       res.send(result);
     });
 
@@ -35,6 +34,38 @@ const run = async () => {
       const query = {};
       const cursor = Products.find(query);
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Products.findOne(query);
+      res.send(result);
+    });
+
+    app.put("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const product = req.body;
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatesInfo = {
+        $set: {
+          name: product.name,
+          image: product.image,
+          price: product.price,
+          serviceType: product.serviceType,
+          descriptions: product.descriptions,
+        },
+      };
+      const result = await Products.updateOne(query, updatesInfo, options);
+      res.send(result);
+    });
+
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Products.deleteOne(query);
       res.send(result);
     });
   } finally {
