@@ -22,6 +22,7 @@ const run = async () => {
   try {
     const Products = client.db("geniusCar").collection("products"); // Products Collection
     const Services = client.db("geniusCar").collection("services"); // Services Collection
+    const Orders = client.db("geniusCar").collection("orders");
 
     /*
     ------------------------
@@ -135,6 +136,45 @@ const run = async () => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await Products.deleteOne(query);
+      res.send(result);
+    });
+
+    /*
+    ------------------------
+        Orders Database
+    ------------------------
+    */
+
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await Orders.insertOne(order);
+      res.send(result);
+    });
+
+    app.get("/orders", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
+      const cursor = Orders.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+      console.log(req.query.email);
+    });
+
+    app.get("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Orders.findOne(query);
+      res.send(result);
+    });
+
+    app.delete("/orders/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Orders.deleteOne(query);
       res.send(result);
     });
   } finally {
