@@ -24,6 +24,16 @@ const client = new MongoClient(uri, {
 const run = async () => {
   try {
     const Products = client.db("geniusCar").collection("products");
+    const Services = client.db("geniusCar").collection("services");
+
+    app.post("/services", async (req, res) => {
+      const service = req.body;
+      const result = await Services.insertOne(service);
+      console.log(result);
+      res.send(result);
+    });
+
+    // Products Server
     app.post("/products", async (req, res) => {
       const product = req.body;
       const result = await Products.insertOne(product);
