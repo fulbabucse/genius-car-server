@@ -23,9 +23,16 @@ const client = new MongoClient(uri, {
 });
 const run = async () => {
   try {
-    const Products = client.db("geniusCar").collection("products");
-    const Services = client.db("geniusCar").collection("services");
+    const Products = client.db("geniusCar").collection("products"); // Products Collection
+    const Services = client.db("geniusCar").collection("services"); // Services Collection
 
+    /*
+    ------------------------
+        Service Database
+    ------------------------
+    */
+
+    // Create Services
     app.post("/services", async (req, res) => {
       const service = req.body;
       const result = await Services.insertOne(service);
@@ -33,13 +40,65 @@ const run = async () => {
       res.send(result);
     });
 
-    // Products Server
+    // Get All Service
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const cursor = Services.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // Get Single Service
+    app.get("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Services.findOne(query);
+      res.send(result);
+      console.log(result);
+    });
+
+    // Update Single Service
+    app.put("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const service = req.body;
+      const query = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updateInfo = {
+        $set: {
+          name: service.name,
+          price: service.price,
+          image: service.image,
+          serviceId: service.serviceId,
+          descriptions: service.descriptions,
+        },
+      };
+      const result = await Services.updateOne(query, updateInfo, option);
+      res.send(result);
+    });
+
+    // Delete Single Service
+    app.delete("/services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await Services.deleteOne(query);
+      res.send(result);
+      console.log(result);
+    });
+
+    /*
+    ------------------------
+        Products Database
+    ------------------------
+    */
+
+    // Create Products
     app.post("/products", async (req, res) => {
       const product = req.body;
       const result = await Products.insertOne(product);
       res.send(result);
     });
 
+    // Get All Products
     app.get("/products", async (req, res) => {
       const query = {};
       const cursor = Products.find(query);
@@ -47,6 +106,7 @@ const run = async () => {
       res.send(result);
     });
 
+    // Get Single Product
     app.get("/products/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -54,6 +114,7 @@ const run = async () => {
       res.send(result);
     });
 
+    // Update Products
     app.put("/products/:id", async (req, res) => {
       const id = req.params.id;
       const product = req.body;
@@ -72,6 +133,7 @@ const run = async () => {
       res.send(result);
     });
 
+    // Delete Single Product
     app.delete("/products/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
