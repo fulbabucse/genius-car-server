@@ -3,9 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
-
-// Username: geniusCar
-// Password: 0xefAh63Y2NWnriw
+require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
@@ -14,8 +12,7 @@ app.get("/", (req, res) => {
   res.send("Genius Car server running");
 });
 
-const uri =
-  "mongodb+srv://geniusCar:0xefAh63Y2NWnriw@cluster0.7ywptfp.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.GENIUSCARUSER}:${process.env.GENIUSCARPASSWORD}@cluster0.7ywptfp.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
