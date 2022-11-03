@@ -168,7 +168,7 @@ const run = async () => {
     ------------------------
     */
 
-    app.post("/orders", async (req, res) => {
+    app.post("/orders", verifyJWT, async (req, res) => {
       const order = req.body;
       const result = await Orders.insertOne(order);
       res.send(result);
@@ -192,14 +192,14 @@ const run = async () => {
       res.send(result);
     });
 
-    app.get("/orders/:id", async (req, res) => {
+    app.get("/orders/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await Orders.findOne(query);
       res.send(result);
     });
 
-    app.delete("/orders/:id", async (req, res) => {
+    app.delete("/orders/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await Orders.deleteOne(query);
