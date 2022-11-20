@@ -51,10 +51,17 @@ const run = async () => {
       res.send({ token });
     });
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, async (req, res) => {
       const query = {};
       const users = await Users.find(query).toArray();
       res.send(users);
+    });
+
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await Users.findOne(query);
+      res.send({ isAdmin: user?.role === "admin" });
     });
 
     app.put("/users", async (req, res) => {
