@@ -41,6 +41,7 @@ const run = async () => {
     const Products = client.db("geniusCar").collection("products"); // Products Collection
     const Services = client.db("geniusCar").collection("services"); // Services Collection
     const Orders = client.db("geniusCar").collection("orders");
+    const Users = client.db("geniusCar").collection("users");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -48,6 +49,35 @@ const run = async () => {
         expiresIn: "1d",
       });
       res.send({ token });
+    });
+
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const users = await Users.find(query).toArray();
+      res.send(users);
+    });
+
+    app.put("/users", async (req, res) => {
+      const user = req.body;
+      const options = { upsert: true };
+      const updateUser = {
+        $set: user,
+      };
+      const result = await Users.updateOne(user, updateUser, options);
+      res.send(result);
+    });
+
+    app.put("/users/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedInfo = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const updated = await Users.updateOne(filter, updatedInfo, options);
+      res.send(updated);
     });
 
     /*
@@ -176,7 +206,6 @@ const run = async () => {
 
     app.get("/orders", verifyJWT, async (req, res) => {
       const decoded = req.decoded;
-      console.log(decoded);
       if (decoded.email !== req.query.email) {
         res.status(403).send({ message: "Forbidden access" });
       }
