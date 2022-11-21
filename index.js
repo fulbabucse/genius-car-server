@@ -5,6 +5,7 @@ const app = express();
 const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SK);
 
 app.use(cors());
 app.use(express.json());
@@ -42,6 +43,26 @@ const run = async () => {
     const Services = client.db("geniusCar").collection("services"); // Services Collection
     const Orders = client.db("geniusCar").collection("orders");
     const Users = client.db("geniusCar").collection("users");
+    const Payments = client.db("geniusCar").collection("payments");
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const order = req.body;
+      const amount = order.totalPrice * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    app.post("/payments", async (req, res) => {
+      const paymentInfo = req.body;
+      const payment = await Payments.insertOne(paymentInfo);
+      res.send(payment);
+    });
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
